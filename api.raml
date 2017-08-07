@@ -1,0 +1,167 @@
+#%RAML 1.0
+title: Customer API
+version: 1.0
+baseUri: https://api.exercise.co.nz/{version}
+traits:
+  client-id-required:
+      headers:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+/customers:
+  get:
+    is: [client-id-required]
+    description: Load the list of Customers
+    queryParameters:
+        size:
+          required: false
+          type: integer
+          description: Size of the page to retrieve.
+          minimum: 0
+          maximum: 100
+          default: 30
+          example: 5     
+        page:
+          required: false
+          type: integer
+          description: Number of the page to retrieve.
+          default: 1
+          example: 5
+        sort:
+          required: false
+          type: string
+          description: Order in which to retrieve the results. Multiple sort criteria can be passed.
+          example: firstName ASC, Address DESC
+        field:
+          required: false
+          type: string
+          description: Allows to choose the return field. Comma seperated list of fields to include.
+          example: id,firstName
+        firstName:
+           required: false
+           type : string
+           description: Allows to filter the collections of result by the value of field firstName.
+           example: jono  
+        lastName:
+           required: false
+           type : string
+           description: Allows to filter the collections of result by the value of field lastName.
+           example: paul 
+    responses:
+      200:
+        description: Successfully retrieved customers
+        body: 
+          application/json: 
+            example: !include examples/list-customer-response.json
+            schema: !include schemas/list-customer-response-schema.json
+      500:
+        description: An error while retrieving the customers.Try again soon
+        body:
+          application/json: 
+            example: !include examples/errors/error-500.json
+            schema: !include schemas/common/common-error.json
+  post:
+    is: [client-id-required]
+    description: Create the Customers.
+    body: 
+      application/json:
+        example: !include examples/create-customers-request.json
+        schema: !include schemas/customers-request-schema.json
+      text/csv:
+        example: !include examples/create-bulk-customers.csv
+    responses:
+      200:
+        description: Successfully created
+        body: 
+          application/json: 
+             example: !include examples/create-customer-response.json
+             schema: !include schemas/customer-response-schema.json
+      202:
+        description: Successfully created Job
+        body: 
+          application/json: 
+            example: !include examples/bulk-customers-response.json
+            schema: !include schemas/bulk-customers-response-schema.json
+      400:
+        description: Bad Request - the provided input did not match the JSON schema or expected file structure
+        body:
+          application/json: 
+            example: !include examples/errors/error-400.json
+            schema: !include schemas/common/common-error.json
+      415:
+        description: Unsupported Media Type - request was not one of application/json or text/csv
+        body:
+          application/json: 
+            example: !include examples/errors/error-415.json
+            schema: !include schemas/common/common-error.json
+      500:
+        description: An internal error occured. Try again soon
+        body:
+          application/json: 
+            example: !include examples/errors/error-500.json
+            schema: !include schemas/common/common-error.json
+  /{id}:
+    is: [client-id-required]
+    get:
+      is: [client-id-required]
+      description: Load an individual customer
+      responses:
+          200:
+            description: Successfuly retrieved customer
+            body: 
+              application/json: 
+                example: !include examples/list-single-customer-response.json
+          500:
+            description: An error occured. Try again soon
+    
+    put:
+      is: [client-id-required]
+      description: Updates a customer
+      body:
+        application/json:
+          example: !include examples/update-customer-request.json
+          schema: !include schemas/update-customer-request-schema.json
+      responses:
+        200:
+          description: Successfuly updated a customer
+          body: 
+            application/json: 
+              example: !include examples/update-customer-response.json
+              schema: !include schemas/update-customer-response-schema.json
+        400:
+          description: Bad Request - the provided input did not match the JSON schema or expected file structure
+          body:
+            application/json: 
+              example: !include examples/errors/error-400.json
+              schema: !include schemas/common/common-error.json
+        415:
+          description: Unsupported Media Type - request was not one of application/json or text/csv
+          body:
+            application/json: 
+              example: !include examples/errors/error-415.json
+              schema: !include schemas/common/common-error.json
+        500:
+          description: An internal error occured. Try again soon
+          body:
+            application/json: 
+              example: !include examples/errors/error-500.json
+              schema: !include schemas/common/common-error.json
+    delete:
+       is: [client-id-required]
+       description: Deletes a customer
+       responses: 
+         200:
+            body:
+               application/json: 
+                example: !include examples/delete-customer-response.json
+         400:
+            body:
+               application/json:
+                example: !include examples/errors/error-400.json
+         500:
+          description: An internal error occured. Try again soon
+          body:
+            application/json: 
+              example: !include examples/errors/error-500.json
+              schema: !include schemas/common/common-error.json
